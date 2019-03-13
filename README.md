@@ -11,7 +11,7 @@ Also it's more a research than a production ready package to understand the conc
 # Initialization
 
 ```javascript
-const sql = require('@sharaal/sql-mysql')
+const sql = require('sql-mysql')
 ```
 
 # Syntax Highlighting
@@ -21,6 +21,10 @@ const sql = require('@sharaal/sql-mysql')
 1. Install `language-babel` package
 2. In the settings of this package search for "JavaScript Tagged Template Literals Grammar Extensions" and add the support for SQL via `sql:source.sql`
 3. If it doesn't work disable "Use Tree Sitter Parsers" in the core settings
+
+# Alternative databases
+
+* PostgreSQL: [sql-pg](https://www.npmjs.com/package/sql-pg)
 
 # Examples
 
