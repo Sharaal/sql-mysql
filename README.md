@@ -38,8 +38,8 @@ const result = await client.query(sql`
   SELECT * FROM users WHERE email = ${email} AND passwordhash = ${passwordhash}
 `)
 
-// text: SELECT * FROM users WHERE email = ? AND passwordhash = ?
-// parameters: ['email', 'passwordhash']
+// sql: SELECT * FROM users WHERE email = ? AND passwordhash = ?
+// values: ['email', 'passwordhash']
 ```
 
 ## Escape keys for tables and columns
@@ -52,8 +52,8 @@ const result = await client.query(sql`
   SELECT ${sql.keys(columns)} FROM ${sql.key(table)}
 `)
 
-// text: SELECT "id", "email" FROM "users"
-// parameters: []
+// sql: SELECT "id", "email" FROM "users"
+// values: []
 ```
 
 If the parameter is an object (e.g. a user) the keys of the object will be used:
@@ -65,8 +65,8 @@ const result = await client.query(sql`
   SELECT ${sql.keys(user)} FROM users
 `)
 
-// text: SELECT "id", "email" FROM "users"
-// parameters: []
+// sql: SELECT "id", "email" FROM "users"
+// values: []
 ```
 
 ## Support list of values
@@ -79,8 +79,8 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(values)})
 `)
 
-// text: INSERT INTO users (email, passwordhash) VALUES (?, ?)
-// parameters: ['email', 'passwordhash']
+// sql: INSERT INTO users (email, passwordhash) VALUES (?, ?)
+// values: ['email', 'passwordhash']
 ```
 
 If the parameter is an object (e.g. a user) the values of the object will be used:
@@ -92,8 +92,8 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)})
 `)
 
-// text: INSERT INTO users (email, passwordhash) VALUES (?, ?)
-// parameters: ['email', 'passwordhash']
+// sql: INSERT INTO users (email, passwordhash) VALUES (?, ?)
+// values: ['email', 'passwordhash']
 ```
 
 ## Support multiple list of values
@@ -108,8 +108,8 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES ${sql.values(valuesList)}
 `)
 
-// text: INSERT INTO users (email, passwordhash) VALUES (?, ?), (?, ?)
-// parameters: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
+// sql: INSERT INTO users (email, passwordhash) VALUES (?, ?), (?, ?)
+// values: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
 ```
 
 If the parameter is an array of objects (e.g. list of users) the values of the objects will be used:
@@ -124,8 +124,8 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES ${sql.values(users)}
 `)
 
-// text: INSERT INTO users (email, passwordhash) VALUES ($1, $2), ($3, $4)
-// parameters: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
+// sql: INSERT INTO users (email, passwordhash) VALUES ($1, $2), ($3, $4)
+// values: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
 ```
 
 ## Support pairs of column keys and values using as set of updates
@@ -137,8 +137,8 @@ const result = await client.query(sql`
   UPDATE users SET ${sql.pairs(user, ', ')} WHERE id = 'id'
 `)
 
-// text: UPDATE users SET "email" = $1, "passwordhash" = $2 WHERE id = 'id'
-// parameters: ['email', 'passwordhash']
+// sql: UPDATE users SET "email" = $1, "passwordhash" = $2 WHERE id = 'id'
+// values: ['email', 'passwordhash']
 ```
 
 ## Support pairs of column keys and values using as set of conditions
@@ -150,8 +150,8 @@ const result = await client.query(sql`
   SELECT * FROM users WHERE ${sql.pairs(user, ' AND ')}
 `)
 
-// text: SELECT * FROM users WHERE "email" = $1 AND "passwordhash" = $2
-// parameters: ['email', 'passwordhash']
+// sql: SELECT * FROM users WHERE "email" = $1 AND "passwordhash" = $2
+// values: ['email', 'passwordhash']
 ```
 
 ## Support for nested queries
@@ -168,11 +168,11 @@ const result = await client.query(sql`
     id = (${sql`SELECT id FROM users WHERE email = ${email} AND passwordhash = ${passwordhash}`})
 `)
 
-// text: SELECT * FROM users WHERE
+// sql: SELECT * FROM users WHERE
 //         state = $1
 //         AND
 //         id = (SELECT id FROM users WHERE email = $2 AND passwordhash = $3)
-// parameters: ['active', 'email', 'passwordhash']
+// values: ['active', 'email', 'passwordhash']
 ```
 
 ## Support for limit, offset and pagination
@@ -186,8 +186,8 @@ const result = await client.query(sql`
   SELECT * FROM users ${sql.limit(actualLimit, maxLimit)} ${sql.offset(offset)}
 `)
 
-// text: SELECT * FROM users LIMIT 10 OFFSET 20
-// parameters: []
+// sql: SELECT * FROM users LIMIT 10 OFFSET 20
+// values: []
 ```
 
 `maxLimit` is optional, but it should be set with a non user defined number to ensure a user can't select an infinite number of rows.
@@ -202,8 +202,8 @@ const result = await client.query(sql`
   SELECT * FROM users ${sql.pagination(page, pageSize)}
 `)
 
-// text: SELECT * FROM users LIMIT 10 OFFSET 50
-// parameters: []
+// sql: SELECT * FROM users LIMIT 10 OFFSET 50
+// values: []
 ```
 
 # Extend with own fragment methods
@@ -214,8 +214,8 @@ It's possible to define own fragment methods by adding them to the `sql` tag:
 const bcrypt = require('bcrypt')
 
 sql.passwordhash = (password, saltRounds = 10) => parameterPosition => ({
-  text: `$${++parameterPosition}`,
-  parameters: [bcrypt.hashSync(password, saltRounds)]
+  sql: `$${++parameterPosition}`,
+  values: [bcrypt.hashSync(password, saltRounds)]
 })
 
 const user = { email: 'email' }
@@ -225,8 +225,8 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})
 `)
 
-// text: INSERT INTO users (email, passwordhash) VALUES ($1, $2)
-// parameters: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
+// sql: INSERT INTO users (email, passwordhash) VALUES ($1, $2)
+// values: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
 ```
 
 It's also possible to reuse existing fragments methods to define own ones:
@@ -243,16 +243,16 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})
 `)
 
-// text: INSERT INTO users (email, passwordhash) VALUES ($1, $2)
-// parameters: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
+// sql: INSERT INTO users (email, passwordhash) VALUES ($1, $2)
+// values: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
 ```
 
 If no parameter bindings needed, the shorthand can be used by returning directly the result object:
 
 ```javascript
 sql.active = active => ({
-  text: active ? 'active = true' : '1',
-  parameters: []
+  sql: active ? 'active = true' : '1',
+  values: []
 })
 
 const active = true
@@ -261,22 +261,22 @@ const result = await client.query(sql`
   SELECT * FROM users WHERE ${sql.active(active)}
 `)
 
-// text: SELECT * FROM users WHERE active = true
-// parameters: []
+// sql: SELECT * FROM users WHERE active = true
+// values: []
 ```
 
-Or by define a constant result object if also no parameters needed:
+Or by define a constant result object if also no values needed:
 
 ```javascript
 sql.first = {
-  text: `LIMIT 1`,
-  parameters: []
+  sql: `LIMIT 1`,
+  values: []
 }
 
 const result = await client.query(sql`
   SELECT * FROM users ${sql.first}
 `)
 
-// text: SELECT * FROM users LIMIT 1
-// parameters: []
+// sql: SELECT * FROM users LIMIT 1
+// values: []
 ```
