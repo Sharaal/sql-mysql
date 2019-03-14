@@ -6,34 +6,34 @@ describe('sql-mysql', () => {
   describe('extract and bind values', () => {
     it('should work with one value inside the query', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE id = ? AND state = \'active\'',
-        parameters: ['id']
+        sql: 'SELECT * FROM users WHERE id = ? AND state = \'active\'',
+        values: ['id']
       }
 
       const id = 'id'
 
       let actual = sql`SELECT * FROM users WHERE id = ${id} AND state = 'active'`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with one value at the end of the query', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE id = ?',
-        parameters: ['id']
+        sql: 'SELECT * FROM users WHERE id = ?',
+        values: ['id']
       }
 
       const id = 'id'
 
       let actual = sql`SELECT * FROM users WHERE id = ${id}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with multiple values', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE email = ? AND passwordhash = ?',
-        parameters: ['email', 'passwordhash']
+        sql: 'SELECT * FROM users WHERE email = ? AND passwordhash = ?',
+        values: ['email', 'passwordhash']
       }
 
       const email = 'email'
@@ -41,97 +41,97 @@ describe('sql-mysql', () => {
 
       let actual = sql`SELECT * FROM users WHERE email = ${email} AND passwordhash = ${passwordhash}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('escape keys for tables and columns', () => {
     it('should work with one key', () => {
       const expected = {
-        text: 'SELECT * FROM "users"',
-        parameters: []
+        sql: 'SELECT * FROM "users"',
+        values: []
       }
 
       const table = 'users'
 
       let actual = sql`SELECT * FROM ${sql.key(table)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with a list of keys array based', () => {
       const expected = {
-        text: 'SELECT "id", "email" FROM users',
-        parameters: []
+        sql: 'SELECT "id", "email" FROM users',
+        values: []
       }
 
       const columns = ['id', 'email']
 
       let actual = sql`SELECT ${sql.keys(columns)} FROM users`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with a list of keys object based', () => {
       const expected = {
-        text: 'SELECT "id", "email" FROM users',
-        parameters: []
+        sql: 'SELECT "id", "email" FROM users',
+        values: []
       }
 
       const user = { id: 'id', email: 'email' }
 
       let actual = sql`SELECT ${sql.keys(user)} FROM users`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('support list of values', () => {
     it('should work with one value in the value list', () => {
       const expected = {
-        text: 'INSERT INTO users (email) VALUES (?)',
-        parameters: ['email']
+        sql: 'INSERT INTO users (email) VALUES (?)',
+        values: ['email']
       }
 
       const values = ['email']
 
       let actual = sql`INSERT INTO users (email) VALUES (${sql.values(values)})`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with multiple values in the value list array based', () => {
       const expected = {
-        text: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
-        parameters: ['email', 'passwordhash']
+        sql: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
+        values: ['email', 'passwordhash']
       }
 
       const values = ['email', 'passwordhash']
 
       let actual = sql`INSERT INTO users (email, passwordhash) VALUES (${sql.values(values)})`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with multiple values in the value list object based', () => {
       const expected = {
-        text: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
-        parameters: ['email', 'passwordhash']
+        sql: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
+        values: ['email', 'passwordhash']
       }
 
       const user = { email: 'email', passwordhash: 'passwordhash' }
 
       let actual = sql`INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)})`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('support multiple list of values', () => {
     it('should work with multiple list of values array based', () => {
       const expected = {
-        text: 'INSERT INTO users (email, passwordhash) VALUES (?, ?), (?, ?)',
-        parameters: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
+        sql: 'INSERT INTO users (email, passwordhash) VALUES (?, ?), (?, ?)',
+        values: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
       }
 
       const valuesList = [
@@ -141,13 +141,13 @@ describe('sql-mysql', () => {
 
       let actual = sql`INSERT INTO users (email, passwordhash) VALUES ${sql.valuesList(valuesList)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with multiple list of values object based', () => {
       const expected = {
-        text: 'INSERT INTO users (email, passwordhash) VALUES (?, ?), (?, ?)',
-        parameters: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
+        sql: 'INSERT INTO users (email, passwordhash) VALUES (?, ?), (?, ?)',
+        values: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
       }
 
       const users = [
@@ -157,71 +157,71 @@ describe('sql-mysql', () => {
 
       let actual = sql`INSERT INTO users (email, passwordhash) VALUES ${sql.valuesList(users)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('Support pairs of column keys and values using as set of updates', () => {
     it('should work with one pair', () => {
       const expected = {
-        text: 'UPDATE users SET "email" = ? WHERE id = \'id\'',
-        parameters: ['email']
+        sql: 'UPDATE users SET "email" = ? WHERE id = \'id\'',
+        values: ['email']
       }
 
       const user = { email: 'email' }
 
       let actual = sql`UPDATE users SET ${sql.pairs(user, ', ')} WHERE id = 'id'`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with multiple pairs', () => {
       const expected = {
-        text: 'UPDATE users SET "email" = ?, "passwordhash" = ? WHERE id = \'id\'',
-        parameters: ['email', 'passwordhash']
+        sql: 'UPDATE users SET "email" = ?, "passwordhash" = ? WHERE id = \'id\'',
+        values: ['email', 'passwordhash']
       }
 
       const user = { email: 'email', passwordhash: 'passwordhash' }
 
       let actual = sql`UPDATE users SET ${sql.pairs(user, ', ')} WHERE id = 'id'`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('Support pairs of column keys and values using as set of conditions', () => {
     it('should work with one pair', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE "email" = ?',
-        parameters: ['email']
+        sql: 'SELECT * FROM users WHERE "email" = ?',
+        values: ['email']
       }
 
       const user = { email: 'email' }
 
       let actual = sql`SELECT * FROM users WHERE ${sql.pairs(user, ' AND ')}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with multiple pairs', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE "email" = ? AND "passwordhash" = ?',
-        parameters: ['email', 'passwordhash']
+        sql: 'SELECT * FROM users WHERE "email" = ? AND "passwordhash" = ?',
+        values: ['email', 'passwordhash']
       }
 
       const user = { email: 'email', passwordhash: 'passwordhash' }
 
       let actual = sql`SELECT * FROM users WHERE ${sql.pairs(user, ' AND ')}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('Support for nested queries', () => {
     it('should work, especially the renumbering of the binds', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE state = ? AND id = (SELECT id FROM users WHERE email = ? AND passwordhash = ?)',
-        parameters: ['active', 'email', 'passwordhash']
+        sql: 'SELECT * FROM users WHERE state = ? AND id = (SELECT id FROM users WHERE email = ? AND passwordhash = ?)',
+        values: ['active', 'email', 'passwordhash']
       }
 
       const state = 'active'
@@ -230,15 +230,15 @@ describe('sql-mysql', () => {
 
       let actual = sql`SELECT * FROM users WHERE state = ${state} AND id = (${sql`SELECT id FROM users WHERE email = ${email} AND passwordhash = ${passwordhash}`})`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('Support for limit, offset and pagination', () => {
     it('should work with right values', () => {
       const expected = {
-        text: 'SELECT * FROM users LIMIT 10 OFFSET 20',
-        parameters: []
+        sql: 'SELECT * FROM users LIMIT 10 OFFSET 20',
+        values: []
       }
 
       const limit = 10
@@ -246,13 +246,13 @@ describe('sql-mysql', () => {
 
       let actual = sql`SELECT * FROM users ${sql.limit(limit)} ${sql.offset(offset)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with 0 values by using the fallbacks', () => {
       const expected = {
-        text: 'SELECT * FROM users LIMIT 1 OFFSET 0',
-        parameters: []
+        sql: 'SELECT * FROM users LIMIT 1 OFFSET 0',
+        values: []
       }
 
       const limit = 0
@@ -260,13 +260,13 @@ describe('sql-mysql', () => {
 
       let actual = sql`SELECT * FROM users ${sql.limit(limit)} ${sql.offset(offset)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with non number values by using the fallbacks', () => {
       const expected = {
-        text: 'SELECT * FROM users LIMIT 1 OFFSET 0',
-        parameters: []
+        sql: 'SELECT * FROM users LIMIT 1 OFFSET 0',
+        values: []
       }
 
       const limit = 'example'
@@ -274,13 +274,13 @@ describe('sql-mysql', () => {
 
       let actual = sql`SELECT * FROM users ${sql.limit(limit)} ${sql.offset(offset)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with the pagination shorthand', () => {
       const expected = {
-        text: 'SELECT * FROM users LIMIT 10 OFFSET 50',
-        parameters: []
+        sql: 'SELECT * FROM users LIMIT 10 OFFSET 50',
+        values: []
       }
 
       const page = 5
@@ -288,13 +288,13 @@ describe('sql-mysql', () => {
 
       let actual = sql`SELECT * FROM users ${sql.pagination(page, pageSize)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work if the actualLimit is higher than the maxLimit', () => {
       const expected = {
-        text: 'SELECT * FROM users LIMIT 10',
-        parameters: []
+        sql: 'SELECT * FROM users LIMIT 10',
+        values: []
       }
 
       const actualLimit = 50
@@ -302,15 +302,15 @@ describe('sql-mysql', () => {
 
       let actual = sql`SELECT * FROM users ${sql.limit(actualLimit, maxLimit)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('Extend with own fragment methods', () => {
     it('should work with using parameterPosition in fragment method', () => {
       const expected = {
-        text: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
-        parameters: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
+        sql: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
+        values: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
       }
 
       const bcrypt = {
@@ -318,8 +318,8 @@ describe('sql-mysql', () => {
       }
 
       sql.passwordhash = (password, saltRounds = 10) => ({
-        text: '?',
-        parameters: [bcrypt.hashSync(password, saltRounds)]
+        sql: '?',
+        values: [bcrypt.hashSync(password, saltRounds)]
       })
 
       const user = { email: 'email' }
@@ -327,13 +327,13 @@ describe('sql-mysql', () => {
 
       let actual = sql`INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with reusing existing fragment method', () => {
       const expected = {
-        text: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
-        parameters: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
+        sql: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
+        values: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
       }
 
       const bcrypt = {
@@ -347,89 +347,89 @@ describe('sql-mysql', () => {
 
       let actual = sql`INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with fragment method returning directly result object', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE active = true',
-        parameters: []
+        sql: 'SELECT * FROM users WHERE active = true',
+        values: []
       }
 
       sql.active = active => ({
-        text: active ? 'active = true' : '1',
-        parameters: []
+        sql: active ? 'active = true' : '1',
+        values: []
       })
 
       const active = true
 
       let actual = sql`SELECT * FROM users WHERE ${sql.active(active)}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should work with constant result object', () => {
       const expected = {
-        text: 'SELECT * FROM users LIMIT 1',
-        parameters: []
+        sql: 'SELECT * FROM users LIMIT 1',
+        values: []
       }
 
       sql.first = {
-        text: `LIMIT 1`,
-        parameters: []
+        sql: `LIMIT 1`,
+        values: []
       }
 
       let actual = sql`SELECT * FROM users ${sql.first}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
-  describe('Right handling of "?" in text fragments', () => {
-    it('should not accidentally replace "?" with numbered binding in text fragments', () => {
+  describe('Right handling of "?" in sql fragments', () => {
+    it('should not accidentally replace "?" with numbered binding in sql fragments', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE email = "?"',
-        parameters: []
+        sql: 'SELECT * FROM users WHERE email = "?"',
+        values: []
       }
 
       let actual = sql`SELECT * FROM users WHERE email = "?"`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
-    it('should not accidentally replace "?" with numbered binding in nested query text fragments', () => {
+    it('should not accidentally replace "?" with numbered binding in nested query sql fragments', () => {
       const expected = {
-        text: 'SELECT * FROM (SELECT * FROM users WHERE email = "?") tmp',
-        parameters: []
+        sql: 'SELECT * FROM (SELECT * FROM users WHERE email = "?") tmp',
+        values: []
       }
 
       let actual = sql`SELECT * FROM (${sql`SELECT * FROM users WHERE email = "?"`}) tmp`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
   describe('Right handling of "?" in bindings', () => {
     it('should bind reservered "?" correctly if given as binding', () => {
       const expected = {
-        text: 'SELECT * FROM users WHERE email = ?',
-        parameters: ['?']
+        sql: 'SELECT * FROM users WHERE email = ?',
+        values: ['?']
       }
 
       let actual = sql`SELECT * FROM users WHERE email = ${'?'}`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
     it('should bind reservered "?" correctly if given as binding in nested query', () => {
       const expected = {
-        text: 'SELECT * FROM (SELECT * FROM users WHERE email = ?) tmp',
-        parameters: ['?']
+        sql: 'SELECT * FROM (SELECT * FROM users WHERE email = ?) tmp',
+        values: ['?']
       }
 
       let actual = sql`SELECT * FROM (${sql`SELECT * FROM users WHERE email = ${'?'}`}) tmp`
 
-      assert.deepEqual({ text: actual.text, parameters: actual.parameters }, expected)
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 })

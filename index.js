@@ -1,14 +1,16 @@
 function sql (textFragments, ...valueFragments) {
-  let text = textFragments[0]
-  let parameters = []
+  const query = {
+    sql: textFragments[0],
+    values: []
+  }
   valueFragments.forEach((valueFragment, i) => {
     if (typeof valueFragment !== 'object') {
       valueFragment = sql.value(valueFragment)
     }
-    text += valueFragment.text + textFragments[i + 1]
-    parameters = parameters.concat(valueFragment.parameters)
+    query.sql += valueFragment.sql + textFragments[i + 1]
+    query.values = query.values.concat(valueFragment.values)
   })
-  return { text, parameters }
+  return query
 }
 
 function escapeKey (key) {
@@ -20,8 +22,8 @@ sql.keys = keys => {
     keys = Object.keys(keys)
   }
   return {
-    text: keys.map(escapeKey).join(', '),
-    parameters: []
+    sql: keys.map(escapeKey).join(', '),
+    values: []
   }
 }
 
@@ -32,36 +34,47 @@ sql.values = values => {
     values = Object.values(values)
   }
   return {
-    text: Array.apply(null, { length: values.length }).map(() => '?').join(', '),
-    parameters: values
+    sql: Array.apply(null, { length: values.length }).map(() => '?').join(', '),
+    values
   }
 }
 
 sql.value = value => sql.values([value])
 
-sql.valuesList = valuesList =>
-  valuesList
-    .map(values => sql.values(values))
-    .reduce(
-      (valuesA, valuesB) => ({
-        text: valuesA.text + (valuesA.text ? ', ' : '') + `(${valuesB.text})`,
-        parameters: valuesA.parameters.concat(valuesB.parameters)
-      }),
-      { text: '', parameters: [] }
-    )
+sql.valuesList = valuesList => {
+  const queries = []
+  for (const values of valuesList) {
+    const query = sql.values(values)
+    queries.push({
+      sql: `(${query.sql})`,
+      values: query.values
+    })
+  }
+  return queries.reduce(
+    (queryA, queryB) => ({
+      sql: queryA.sql + (queryA.sql ? ', ' : '') + queryB.sql,
+      values: queryA.values.concat(queryB.values)
+    }),
+    { sql: '', values: [] }
+  )
+}
 
 sql.pairs = (pairs, separator) => {
-  const texts = []
-  const parameters = []
+  const queries = []
   for (const key of Object.keys(pairs)) {
     const value = pairs[key]
-    texts.push(`${escapeKey(key)} = ?`)
-    parameters.push(value)
+    queries.push({
+      sql: `${escapeKey(key)} = ?`,
+      values: [value]
+    })
   }
-  return {
-    text: texts.join(separator),
-    parameters
-  }
+  return queries.reduce(
+    (queryA, queryB) => ({
+      sql: queryA.sql + (queryA.sql ? separator : '') + queryB.sql,
+      values: queryA.values.concat(queryB.values)
+    }),
+    { sql: '', values: [] }
+  )
 }
 
 function positivNumber (number, fallback) {
@@ -73,13 +86,13 @@ function positivNumber (number, fallback) {
 }
 
 sql.limit = (actualLimit, maxLimit = Infinity, fallback = 1) => ({
-  text: `LIMIT ${Math.min(positivNumber(actualLimit, fallback), maxLimit)}`,
-  parameters: []
+  sql: `LIMIT ${Math.min(positivNumber(actualLimit, fallback), maxLimit)}`,
+  values: []
 })
 
 sql.offset = (offset, fallback = 0) => ({
-  text: `OFFSET ${positivNumber(offset, fallback)}`,
-  parameters: []
+  sql: `OFFSET ${positivNumber(offset, fallback)}`,
+  values: []
 })
 
 sql.pagination = (page, pageSize) =>
