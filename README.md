@@ -124,7 +124,7 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES ${sql.values(users)}
 `)
 
-// sql: INSERT INTO users (email, passwordhash) VALUES ($1, $2), ($3, $4)
+// sql: INSERT INTO users (email, passwordhash) VALUES (?, ?), (?, ?)
 // values: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
 ```
 
@@ -137,7 +137,7 @@ const result = await client.query(sql`
   UPDATE users SET ${sql.pairs(user, ', ')} WHERE id = 'id'
 `)
 
-// sql: UPDATE users SET "email" = $1, "passwordhash" = $2 WHERE id = 'id'
+// sql: UPDATE users SET "email" = ?, "passwordhash" = ? WHERE id = 'id'
 // values: ['email', 'passwordhash']
 ```
 
@@ -150,7 +150,7 @@ const result = await client.query(sql`
   SELECT * FROM users WHERE ${sql.pairs(user, ' AND ')}
 `)
 
-// sql: SELECT * FROM users WHERE "email" = $1 AND "passwordhash" = $2
+// sql: SELECT * FROM users WHERE "email" = ? AND "passwordhash" = ?
 // values: ['email', 'passwordhash']
 ```
 
@@ -169,9 +169,9 @@ const result = await client.query(sql`
 `)
 
 // sql: SELECT * FROM users WHERE
-//         state = $1
+//         state = ?
 //         AND
-//         id = (SELECT id FROM users WHERE email = $2 AND passwordhash = $3)
+//         id = (SELECT id FROM users WHERE email = ? AND passwordhash = ?)
 // values: ['active', 'email', 'passwordhash']
 ```
 
@@ -213,8 +213,8 @@ It's possible to define own fragment methods by adding them to the `sql` tag:
 ```javascript
 const bcrypt = require('bcrypt')
 
-sql.passwordhash = (password, saltRounds = 10) => parameterPosition => ({
-  sql: `$${++parameterPosition}`,
+sql.passwordhash = (password, saltRounds = 10) => ({
+  sql: '?',
   values: [bcrypt.hashSync(password, saltRounds)]
 })
 
@@ -225,7 +225,7 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})
 `)
 
-// sql: INSERT INTO users (email, passwordhash) VALUES ($1, $2)
+// sql: INSERT INTO users (email, passwordhash) VALUES (?, ?)
 // values: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
 ```
 
@@ -243,29 +243,11 @@ const result = await client.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})
 `)
 
-// sql: INSERT INTO users (email, passwordhash) VALUES ($1, $2)
+// sql: INSERT INTO users (email, passwordhash) VALUES (?, ?)
 // values: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
 ```
 
-If no parameter bindings needed, the shorthand can be used by returning directly the result object:
-
-```javascript
-sql.active = active => ({
-  sql: active ? 'active = true' : '1',
-  values: []
-})
-
-const active = true
-
-const result = await client.query(sql`
-  SELECT * FROM users WHERE ${sql.active(active)}
-`)
-
-// sql: SELECT * FROM users WHERE active = true
-// values: []
-```
-
-Or by define a constant result object if also no values needed:
+Or by define a constant result object if no values needed:
 
 ```javascript
 sql.first = {

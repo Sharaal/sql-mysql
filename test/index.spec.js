@@ -307,7 +307,7 @@ describe('sql-mysql', () => {
   })
 
   describe('Extend with own fragment methods', () => {
-    it('should work with using parameterPosition in fragment method', () => {
+    it('should work to define own fragment methods by adding them to the `sql` tag', () => {
       const expected = {
         sql: 'INSERT INTO users (email, passwordhash) VALUES (?, ?)',
         values: ['email', '$2b$10$ODInlkbnvW90q.EGZ.1Ale3YpOqqdn0QtAotg8q/JzM5HGky6Q2j6']
@@ -346,24 +346,6 @@ describe('sql-mysql', () => {
       const password = 'password'
 
       let actual = sql`INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})`
-
-      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
-    })
-
-    it('should work with fragment method returning directly result object', () => {
-      const expected = {
-        sql: 'SELECT * FROM users WHERE active = true',
-        values: []
-      }
-
-      sql.active = active => ({
-        sql: active ? 'active = true' : '1',
-        values: []
-      })
-
-      const active = true
-
-      let actual = sql`SELECT * FROM users WHERE ${sql.active(active)}`
 
       assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
