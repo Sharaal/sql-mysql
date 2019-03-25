@@ -34,7 +34,7 @@ const sql = require('sql-mysql')
 const email = 'email'
 const passwordhash = 'passwordhash'
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   SELECT * FROM users WHERE email = ${email} AND passwordhash = ${passwordhash}
 `)
 
@@ -48,7 +48,7 @@ const result = await client.query(sql`
 const table = 'users'
 const columns = ['id', 'email']
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   SELECT ${sql.keys(columns)} FROM ${sql.key(table)}
 `)
 
@@ -61,7 +61,7 @@ If the parameter is an object (e.g. a user) the keys of the object will be used:
 ```javascript
 const user = { id: 'id', email: 'email' }
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   SELECT ${sql.keys(user)} FROM users
 `)
 
@@ -75,7 +75,7 @@ const result = await client.query(sql`
 
 const values = ['email', 'passwordhash']
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(values)})
 `)
 
@@ -88,7 +88,7 @@ If the parameter is an object (e.g. a user) the values of the object will be use
 ```javascript
 const user = { email: 'email', passwordhash: 'passwordhash' }
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)})
 `)
 
@@ -104,7 +104,7 @@ const valuesList = [
   ['emailB', 'passwordhashB']
 ]
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   INSERT INTO users (email, passwordhash) VALUES ${sql.values(valuesList)}
 `)
 
@@ -120,7 +120,7 @@ const users = [
   { email: 'emailB', passwordhash: 'passwordhashB' }
 ]
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   INSERT INTO users (email, passwordhash) VALUES ${sql.values(users)}
 `)
 
@@ -133,7 +133,7 @@ const result = await client.query(sql`
 ```javascript
 const user = { email: 'email', passwordhash: 'passwordhash' }
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   UPDATE users SET ${sql.pairs(user, ', ')} WHERE id = 'id'
 `)
 
@@ -146,7 +146,7 @@ const result = await client.query(sql`
 ```javascript
 const user = { email: 'email', passwordhash: 'passwordhash' }
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   SELECT * FROM users WHERE ${sql.pairs(user, ' AND ')}
 `)
 
@@ -161,7 +161,7 @@ const state = 'active'
 const email = 'email'
 const passwordhash = 'passwordhash'
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   SELECT * FROM users WHERE
     state = ${state}
     AND
@@ -182,7 +182,7 @@ const actualLimit = 10
 const maxLimit = 50
 const offset = 20
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   SELECT * FROM users ${sql.limit(actualLimit, maxLimit)} ${sql.offset(offset)}
 `)
 
@@ -198,7 +198,7 @@ Because of pagination is a common use case there is also a pagination shorthand:
 const page = 5
 const pageSize = 10
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   SELECT * FROM users ${sql.pagination(page, pageSize)}
 `)
 
@@ -221,7 +221,7 @@ sql.passwordhash = (password, saltRounds = 10) => ({
 const user = { email: 'email' }
 const password = 'password'
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})
 `)
 
@@ -239,7 +239,7 @@ sql.passwordhash = (password, saltRounds = 10) => sql.values([bcrypt.hashSync(pa
 const user = { email: 'email' }
 const password = 'password'
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   INSERT INTO users (email, passwordhash) VALUES (${sql.values(user)}, ${sql.passwordhash(password)})
 `)
 
@@ -255,7 +255,7 @@ sql.first = {
   values: []
 }
 
-const result = await client.query(sql`
+const result = await connection.query(sql`
   SELECT * FROM users ${sql.first}
 `)
 
