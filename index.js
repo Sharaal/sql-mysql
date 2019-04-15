@@ -14,7 +14,7 @@ function sql (textFragments, ...valueFragments) {
 }
 
 function escapeKey (key) {
-  return `"${key.replace(/"/g, '""')}"`
+  return `\`${key.replace(/`/g, '``')}\``
 }
 
 sql.keys = keys => {

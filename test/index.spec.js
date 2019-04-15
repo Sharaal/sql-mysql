@@ -48,7 +48,7 @@ describe('sql-mysql', () => {
   describe('escape keys for tables and columns', () => {
     it('should work with one key', () => {
       const expected = {
-        sql: 'SELECT * FROM "users"',
+        sql: 'SELECT * FROM `users`',
         values: []
       }
 
@@ -61,7 +61,7 @@ describe('sql-mysql', () => {
 
     it('should work with a list of keys array based', () => {
       const expected = {
-        sql: 'SELECT "id", "email" FROM users',
+        sql: 'SELECT `id`, `email` FROM users',
         values: []
       }
 
@@ -74,7 +74,7 @@ describe('sql-mysql', () => {
 
     it('should work with a list of keys object based', () => {
       const expected = {
-        sql: 'SELECT "id", "email" FROM users',
+        sql: 'SELECT `id`, `email` FROM users',
         values: []
       }
 
@@ -164,7 +164,7 @@ describe('sql-mysql', () => {
   describe('Support pairs of column keys and values using as set of updates', () => {
     it('should work with one pair', () => {
       const expected = {
-        sql: 'UPDATE users SET "email" = ? WHERE id = \'id\'',
+        sql: 'UPDATE users SET `email` = ? WHERE id = \'id\'',
         values: ['email']
       }
 
@@ -177,7 +177,7 @@ describe('sql-mysql', () => {
 
     it('should work with multiple pairs', () => {
       const expected = {
-        sql: 'UPDATE users SET "email" = ?, "passwordhash" = ? WHERE id = \'id\'',
+        sql: 'UPDATE users SET `email` = ?, `passwordhash` = ? WHERE id = \'id\'',
         values: ['email', 'passwordhash']
       }
 
@@ -192,7 +192,7 @@ describe('sql-mysql', () => {
   describe('Support pairs of column keys and values using as set of conditions', () => {
     it('should work with one pair', () => {
       const expected = {
-        sql: 'SELECT * FROM users WHERE "email" = ?',
+        sql: 'SELECT * FROM users WHERE `email` = ?',
         values: ['email']
       }
 
@@ -205,7 +205,7 @@ describe('sql-mysql', () => {
 
     it('should work with multiple pairs', () => {
       const expected = {
-        sql: 'SELECT * FROM users WHERE "email" = ? AND "passwordhash" = ?',
+        sql: 'SELECT * FROM users WHERE `email` = ? AND `passwordhash` = ?',
         values: ['email', 'passwordhash']
       }
 
@@ -367,32 +367,32 @@ describe('sql-mysql', () => {
     })
   })
 
-  describe('Right handling of "?" in sql fragments', () => {
-    it('should not accidentally replace "?" with numbered binding in sql fragments', () => {
+  describe('Right handling of \'?\' in sql fragments', () => {
+    it('should not accidentally replace \'?\' with numbered binding in sql fragments', () => {
       const expected = {
-        sql: 'SELECT * FROM users WHERE email = "?"',
+        sql: 'SELECT * FROM users WHERE email = \'?\'',
         values: []
       }
 
-      let actual = sql`SELECT * FROM users WHERE email = "?"`
+      let actual = sql`SELECT * FROM users WHERE email = '?'`
 
       assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
-    it('should not accidentally replace "?" with numbered binding in nested query sql fragments', () => {
+    it('should not accidentally replace \'?\' with numbered binding in nested query sql fragments', () => {
       const expected = {
-        sql: 'SELECT * FROM (SELECT * FROM users WHERE email = "?") tmp',
+        sql: 'SELECT * FROM (SELECT * FROM users WHERE email = \'?\') tmp',
         values: []
       }
 
-      let actual = sql`SELECT * FROM (${sql`SELECT * FROM users WHERE email = "?"`}) tmp`
+      let actual = sql`SELECT * FROM (${sql`SELECT * FROM users WHERE email = '?'`}) tmp`
 
       assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
   })
 
-  describe('Right handling of "?" in bindings', () => {
-    it('should bind reservered "?" correctly if given as binding', () => {
+  describe('Right handling of \'?\' in bindings', () => {
+    it('should bind reservered \'?\' correctly if given as binding', () => {
       const expected = {
         sql: 'SELECT * FROM users WHERE email = ?',
         values: ['?']
@@ -403,7 +403,7 @@ describe('sql-mysql', () => {
       assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
     })
 
-    it('should bind reservered "?" correctly if given as binding in nested query', () => {
+    it('should bind reservered \'?\' correctly if given as binding in nested query', () => {
       const expected = {
         sql: 'SELECT * FROM (SELECT * FROM users WHERE email = ?) tmp',
         values: ['?']
