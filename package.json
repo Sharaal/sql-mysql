@@ -3,8 +3,8 @@
   "version": "1.1.2",
   "description": "Complex queries can be written with normal SQL, including the values needs to be bound and prefixed with the `sql` tag.",
   "keywords": [
-    "nodejs",
     "mysql",
+    "nodejs",
     "query-builder",
     "sql",
     "tagged-template-literals"
