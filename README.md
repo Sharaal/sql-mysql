@@ -52,7 +52,7 @@ const result = await connection.query(sql`
   SELECT ${sql.keys(columns)} FROM ${sql.key(table)}
 `)
 
-// sql: SELECT "id", "email" FROM "users"
+// sql: SELECT `id`, `email` FROM `users`
 // values: []
 ```
 
@@ -65,7 +65,7 @@ const result = await connection.query(sql`
   SELECT ${sql.keys(user)} FROM users
 `)
 
-// sql: SELECT "id", "email" FROM "users"
+// sql: SELECT `id`, `email` FROM `users`
 // values: []
 ```
 
@@ -137,7 +137,7 @@ const result = await connection.query(sql`
   UPDATE users SET ${sql.pairs(user, ', ')} WHERE id = 'id'
 `)
 
-// sql: UPDATE users SET "email" = ?, "passwordhash" = ? WHERE id = 'id'
+// sql: UPDATE users SET `email` = ?, `passwordhash` = ? WHERE id = 'id'
 // values: ['email', 'passwordhash']
 ```
 
@@ -150,7 +150,7 @@ const result = await connection.query(sql`
   SELECT * FROM users WHERE ${sql.pairs(user, ' AND ')}
 `)
 
-// sql: SELECT * FROM users WHERE "email" = ? AND "passwordhash" = ?
+// sql: SELECT * FROM users WHERE `email` = ? AND `passwordhash` = ?
 // values: ['email', 'passwordhash']
 ```
 
