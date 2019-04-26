@@ -161,7 +161,35 @@ describe('sql-mysql', () => {
     })
   })
 
-  describe('Support pairs of column keys and values using as set of updates', () => {
+  describe('Support assignments for updates', () => {
+    it('should work with one pair', () => {
+      const expected = {
+        sql: 'UPDATE users SET `email` = ? WHERE id = \'id\'',
+        values: ['email']
+      }
+
+      const user = { email: 'email' }
+
+      let actual = sql`UPDATE users SET ${sql.assignments(user)} WHERE id = 'id'`
+
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
+    })
+
+    it('should work with multiple pairs', () => {
+      const expected = {
+        sql: 'UPDATE users SET `email` = ?, `passwordhash` = ? WHERE id = \'id\'',
+        values: ['email', 'passwordhash']
+      }
+
+      const user = { email: 'email', passwordhash: 'passwordhash' }
+
+      let actual = sql`UPDATE users SET ${sql.assignments(user)} WHERE id = 'id'`
+
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
+    })
+  })
+
+  describe('Support pairs of column keys and values using as alternative of assignments for updates', () => {
     it('should work with one pair', () => {
       const expected = {
         sql: 'UPDATE users SET `email` = ? WHERE id = \'id\'',
@@ -189,7 +217,35 @@ describe('sql-mysql', () => {
     })
   })
 
-  describe('Support pairs of column keys and values using as set of conditions', () => {
+  describe('Support conditions for basic use cases', () => {
+    it('should work with one pair', () => {
+      const expected = {
+        sql: 'SELECT * FROM users WHERE `email` = ?',
+        values: ['email']
+      }
+
+      const user = { email: 'email' }
+
+      let actual = sql`SELECT * FROM users WHERE ${sql.conditions(user)}`
+
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
+    })
+
+    it('should work with multiple pairs', () => {
+      const expected = {
+        sql: 'SELECT * FROM users WHERE `email` = ? AND `passwordhash` = ?',
+        values: ['email', 'passwordhash']
+      }
+
+      const user = { email: 'email', passwordhash: 'passwordhash' }
+
+      let actual = sql`SELECT * FROM users WHERE ${sql.conditions(user)}`
+
+      assert.deepEqual({ sql: actual.sql, values: actual.values }, expected)
+    })
+  })
+
+  describe('Support pairs of column keys and values using as alternative of conditions', () => {
     it('should work with one pair', () => {
       const expected = {
         sql: 'SELECT * FROM users WHERE `email` = ?',

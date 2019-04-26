@@ -128,7 +128,20 @@ const result = await connection.query(sql`
 // values: ['emailA', 'passwordhashA', 'emailB', 'passwordhashB']
 ```
 
-## Support pairs of column keys and values using as set of updates
+## Support assignments for updates
+
+```javascript
+const user = { email: 'email', passwordhash: 'passwordhash' }
+
+const result = await connection.query(sql`
+  UPDATE users SET ${sql.assignments(user)} WHERE id = 'id'
+`)
+
+// sql: UPDATE users SET `email` = ?, `passwordhash` = ? WHERE id = 'id'
+// values: ['email', 'passwordhash']
+```
+
+## Support pairs of column keys and values using as alternative of assignments for updates
 
 ```javascript
 const user = { email: 'email', passwordhash: 'passwordhash' }
@@ -141,7 +154,20 @@ const result = await connection.query(sql`
 // values: ['email', 'passwordhash']
 ```
 
-## Support pairs of column keys and values using as set of conditions
+## Support conditions for basic use cases
+
+```javascript
+const user = { email: 'email', passwordhash: 'passwordhash' }
+
+const result = await connection.query(sql`
+  SELECT * FROM users WHERE ${sql.conditions(user)}
+`)
+
+// sql: SELECT * FROM users WHERE `email` = ? AND `passwordhash` = ?
+// values: ['email', 'passwordhash']
+```
+
+## Support pairs of column keys and values using as alternative of conditions
 
 ```javascript
 const user = { email: 'email', passwordhash: 'passwordhash' }
