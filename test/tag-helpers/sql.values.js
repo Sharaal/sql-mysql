@@ -13,7 +13,7 @@ describe('sql.values', () => {
     assert.deepEqual(actual, expected)
   })
 
-  it('exchange the values of the given objects', () => {
+  it('exchange the values of the given object', () => {
     const actual = sql.values({ column1: 'value1', column2: 'value2', column3: 'value3' })
 
     const expected = {
@@ -23,7 +23,7 @@ describe('sql.values', () => {
     assert.deepEqual(actual, expected)
   })
 
-  it('exchange only the values of the given keys of the given objects', () => {
+  it('exchange only the values of the given keys of the given object', () => {
     const actual = sql.values(
       { column1: 'value1', column2: 'value2', column3: 'value3', column4: 'value4' },
       { keys: ['column1', 'column2'] }
