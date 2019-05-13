@@ -1,7 +1,10 @@
+const symbol = Symbol('sql-pg')
+
 function sql (textFragments, ...valueFragments) {
   const query = {
     sql: textFragments[0],
-    values: []
+    values: [],
+    symbol
   }
   valueFragments.forEach((valueFragment, i) => {
     if (typeof valueFragment !== 'object') {
@@ -29,9 +32,9 @@ sql.keys = keys => {
 
 sql.key = key => sql.keys([key])
 
-sql.values = values => {
+sql.values = (values, { keys: keys = Object.keys(values) } = {}) => {
   if (!Array.isArray(values)) {
-    values = Object.values(values)
+    values = keys.map(key => values[key])
   }
   return {
     sql: Array.apply(null, { length: values.length }).map(() => '?').join(', '),
@@ -41,10 +44,10 @@ sql.values = values => {
 
 sql.value = value => sql.values([value])
 
-sql.valuesList = valuesList => {
+sql.valuesList = (valuesList, { keys: keys = Object.keys(valuesList[0]) } = {}) => {
   const queries = []
   for (const values of valuesList) {
-    const query = sql.values(values)
+    const query = sql.values(values, { keys })
     queries.push({
       sql: `(${query.sql})`,
       values: query.values
@@ -59,7 +62,7 @@ sql.valuesList = valuesList => {
   )
 }
 
-sql.pairs = (pairs, separator) => {
+function pairs (pairs, separator) {
   const queries = []
   for (const key of Object.keys(pairs)) {
     const value = pairs[key]
@@ -77,9 +80,9 @@ sql.pairs = (pairs, separator) => {
   )
 }
 
-sql.assignments = pairs => sql.pairs(pairs, ', ')
+sql.assignments = assignments => pairs(assignments, ', ')
 
-sql.conditions = pairs => sql.pairs(pairs, ' AND ')
+sql.conditions = conditions => pairs(conditions, ' AND ')
 
 function positivNumber (number, fallback) {
   number = parseInt(number, 10)
@@ -89,17 +92,27 @@ function positivNumber (number, fallback) {
   return fallback
 }
 
-sql.limit = (actualLimit, maxLimit = Infinity, fallback = 1) => ({
-  sql: `LIMIT ${Math.min(positivNumber(actualLimit, fallback), maxLimit)}`,
+sql.defaultFallbackLimit = 10
+
+sql.defaultMaxLimit = 100
+
+sql.limit = (limit, { fallbackLimit: fallbackLimit = sql.defaultFallbackLimit, maxLimit: maxLimit = sql.defaultMaxLimit } = {}) => ({
+  sql: `LIMIT ${Math.min(positivNumber(limit, fallbackLimit), maxLimit)}`,
   values: []
 })
 
-sql.offset = (offset, fallback = 0) => ({
-  sql: `OFFSET ${positivNumber(offset, fallback)}`,
+sql.offset = offset => ({
+  sql: `OFFSET ${positivNumber(offset, 0)}`,
   values: []
 })
 
-sql.pagination = (page, pageSize) =>
-  sql`${sql.limit(pageSize)} ${sql.offset(page * pageSize)}`
+sql.defaultPageSize = 10
+
+sql.pagination = (page, { pageSize: pageSize = sql.defaultPageSize } = {}) => ({
+  sql: `${sql.limit(pageSize).sql} ${sql.offset(page * pageSize).sql}`,
+  values: []
+})
+
+sql.if = (condition, truly, falsy = { sql: '', values: [] }) => (condition ? truly : falsy)
 
 module.exports = sql
